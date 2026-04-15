@@ -19,85 +19,86 @@ struct Transaksi
     string rute;
 };
 
+struct Node
+{
+    Transaksi data;
+    Node *next;
+};
+
 struct Queue
 {
-    Transaksi data[MAX];
-    int front, rear;
+    Node *front;
+    Node *rear;
 };
 
 void initQueue(Queue *q)
 {
-    q->front = q->rear = -1;
-}
-
-bool isFullQueue(Queue *q)
-{
-    return q->rear == MAX - 1;
-}
-
-bool isEmptyQueue(Queue *q)
-{
-    return q->front == -1;
+    q->front = q->rear = NULL;
 }
 
 void enqueue(Queue *q, Transaksi t)
 {
-    if (isFullQueue(q))
+    Node *baru = new Node;
+    baru->data = t;
+    baru->next = NULL;
+
+    if (q->rear == NULL)
     {
-        cout << "Antrian penuh !!\n";
-        return;
+        q->front = q->rear = baru;
     }
-
-    if (isEmptyQueue(q))
-        q->front = 0;
-
-    q->rear++;
-    *(q->data + q->rear) = t;
+    else
+    {
+        q->rear->next = baru;
+        q->rear = baru;
+    }
 
     cout << "Penumpang masuk antrian!\n";
 }
 
 Transaksi dequeue(Queue *q)
 {
-    Transaksi t;
-
-    if (isEmptyQueue(q))
+    if (q->front == NULL)
     {
         cout << "Antrian kosong!\n";
         return {"", ""};
     }
 
-    t = *(q->data + q->front);
-    q->front++;
+    Node *hapus = q->front;
+    Transaksi t = hapus->data;
 
-    if (q->front > q->rear)
-        q->front = q->rear = -1;
+    q->front = q->front->next;
 
+    if (q->front == NULL)
+        q->rear = NULL;
+
+    delete hapus;
     return t;
 }
 
 void tampilQueue(Queue *q)
 {
-    if (isEmptyQueue(q))
+    if (q->front == NULL)
     {
         cout << "Antrian kosong!\n";
         return;
     }
 
     cout << "\n=== ANTRIAN TIKET ===\n";
-    for (int i = q->front; i <= q->rear; i++)
+    Node *temp = q->front;
+
+    while (temp != NULL)
     {
-        cout << "Nama: " << (q->data + i)->namaPenumpang
-             << " | Rute: " << (q->data + i)->rute << endl;
+        cout << "Nama: " << temp->data.namaPenumpang
+             << " | Rute: " << temp->data.rute << endl;
+        temp = temp->next;
     }
 }
 
 void peekQueue(Queue *q)
 {
-    if (!isEmptyQueue(q))
+    if (q->front != NULL)
     {
-        cout << "Terdepan Antrian: "
-             << (q->data + q->front)->namaPenumpang << endl;
+        cout << "Terdepan: " << q->front->data.namaPenumpang << endl;
     }
     else
     {
@@ -107,85 +108,67 @@ void peekQueue(Queue *q)
 
 struct Stack
 {
-    Transaksi data[MAX];
-    int top;
+    Node *top;
 };
 
 void initStack(Stack *s)
 {
-    s->top = -1;
-}
-
-bool isFullStack(Stack *s)
-{
-    return s->top == MAX - 1;
-}
-
-bool isEmptyStack(Stack *s) 
-{
-    return s->top == -1;
+    s->top = NULL;
 }
 
 void push(Stack *s, Transaksi t)
 {
-    if (isFullStack(s))
-    {
-        cout << "Riwayat penuh (Overflow)!\n";
-        return;
-    }
-
-    s->top++;
-    *(s->data + s->top) = t;
+    Node *baru = new Node;
+    baru->data = t;
+    baru->next = s->top;
+    s->top = baru;
 }
 
 void pop(Stack *s)
 {
-    if (isEmptyStack(s))
+    if (s->top == NULL)
     {
         cout << "Riwayat kosong!\n";
         return;
     }
 
-    cout << "Hapus transaksi: "
-         << (s->data + s->top)->namaPenumpang << endl;
+    Node *hapus = s->top;
+    cout << "Hapus transaksi: " << hapus->data.namaPenumpang << endl;
 
-    s->top--;
+    s->top = s->top->next;
+    delete hapus;
 }
 
 void tampilStack(Stack *s)
 {
-    if (isEmptyStack(s))
+    if (s->top == NULL)
     {
         cout << "Riwayat kosong!\n";
         return;
     }
 
     cout << "\n=== RIWAYAT TRANSAKSI ===\n";
-    for (int i = s->top; i >= 0; i--)
+    Node *temp = s->top;
+
+    while (temp != NULL)
     {
-        cout << "Nama: " << (s->data + i)->namaPenumpang
-             << " | Rute: " << (s->data + i)->rute << endl;
+        cout << "Nama: " << temp->data.namaPenumpang
+             << " | Rute: " << temp->data.rute << endl;
+        temp = temp->next;
     }
 }
 
 void peekStack(Stack *s)
 {
-    if (!isEmptyStack(s))
+    if (s->top != NULL)
     {
         cout << "Transaksi terakhir: "
-             << (s->data + s->top)->namaPenumpang << endl;
+             << s->top->data.namaPenumpang << endl;
     }
     else
     {
         cout << "Riwayat kosong!\n";
     }
-}
-
-void swapPointer(Kereta *a, Kereta *b)
-{
-    Kereta temp = *a;
-    *a = *b;
-    *b = temp;
 }
 
 void tampilDataKereta(Kereta *arr, int n)
